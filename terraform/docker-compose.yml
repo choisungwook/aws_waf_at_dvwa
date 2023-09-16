@@ -1,3 +1,4 @@
+---
 version: '2.4'
 
 services:
@@ -6,7 +7,7 @@ services:
     image: cytopia/dvwa:php-${PHP_VERSION:-8.1}
     restart: unless-stopped
     ports:
-      - "${LISTEN_PORT:-8000}:80"
+      - "${LISTEN_PORT:-80}:80"
     networks:
       - dvwa-net
     environment:
@@ -24,8 +25,8 @@ services:
   dvwa_db:
     image: mariadb:10.1
     hostname: dvwa_db
-    # volumes:
-    #   - dvwa_db_data:/var/lib/mysql
+    volumes:
+      - dvwa_db_data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: dvwa
@@ -39,5 +40,5 @@ networks:
   dvwa-net:
     driver: bridge
 
-# volumes:
-#   dvwa_db_data:
+volumes:
+  dvwa_db_data:
