@@ -1,0 +1,43 @@
+version: '2.4'
+
+services:
+
+  dvwa_web:
+    image: cytopia/dvwa:php-${PHP_VERSION:-8.1}
+    restart: unless-stopped
+    ports:
+      - "${LISTEN_PORT:-8000}:80"
+    networks:
+      - dvwa-net
+    environment:
+      - RECAPTCHA_PRIV_KEY=${RECAPTCHA_PRIV_KEY:-}
+      - RECAPTCHA_PUB_KEY=${RECAPTCHA_PUB_KEY:-}
+      - SECURITY_LEVEL=${SECURITY_LEVEL:-medium}
+      - PHPIDS_ENABLED=${PHPIDS_ENABLED:-0}
+      - PHPIDS_VERBOSE=${PHPIDS_VERBOSE:-0}
+      - PHP_DISPLAY_ERRORS=${PHP_DISPLAY_ERRORS:-0}
+      - MYSQL_HOSTNAME=dvwa_db
+      - MYSQL_DATABASE=dvwa
+      - MYSQL_USERNAME=dvwa
+      - MYSQL_PASSWORD=p@ssw0rd
+
+  dvwa_db:
+    image: mariadb:10.1
+    hostname: dvwa_db
+    # volumes:
+    #   - dvwa_db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: dvwa
+      MYSQL_USER: dvwa
+      MYSQL_PASSWORD: p@ssw0rd
+    restart: unless-stopped
+    networks:
+      - dvwa-net
+
+networks:
+  dvwa-net:
+    driver: bridge
+
+# volumes:
+#   dvwa_db_data:
