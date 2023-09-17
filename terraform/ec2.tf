@@ -44,7 +44,6 @@ resource "aws_security_group" "dvwa" {
   name        = "terraform-dvwa"
   description = "allow 80"
   vpc_id      = aws_vpc.main.id
-
   ingress {
     description = "dvwa web"
     from_port   = 80
@@ -61,9 +60,30 @@ resource "aws_security_group" "dvwa" {
   }
 }
 
+resource "aws_security_group" "alb" {
+  name        = "terraform-dvwa-alb"
+  description = "terraform-dvwa-alb"
+  vpc_id      = aws_vpc.main.id
+  ingress {
+    description = "dvwa alb"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_lb" "dvwa" {
   name               = "terrafomr-dvwa2"
-  load_balancer_type = "network"
+  load_balancer_type = "application"
+  security_groups = [aws_security_group.alb.id]
 
   dynamic "subnet_mapping" {
     for_each = aws_subnet.public
@@ -79,14 +99,15 @@ resource "aws_lb" "dvwa" {
 }
 
 resource "aws_lb_target_group" "dvwa" {
-  name     = "http"
+  name     = "dvwa"
   port     = 80
-  protocol = "TCP"
+  protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
 
   health_check {
     port     = 80
-    protocol = "TCP"
+    protocol = "HTTP"
+    matcher  = "200-499"
   }
 
   lifecycle {
@@ -97,7 +118,7 @@ resource "aws_lb_target_group" "dvwa" {
 resource "aws_lb_listener" "dvwa" {
   load_balancer_arn = aws_lb.dvwa.id
   port              = "80"
-  protocol          = "TCP"
+  protocol          = "HTTP"
 
   default_action {
     target_group_arn = aws_lb_target_group.dvwa.id

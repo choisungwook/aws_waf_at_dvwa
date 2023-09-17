@@ -7,5 +7,12 @@ public-subnets = {
     tags = {
       Name = "public-subnet-a"
     }
+  },
+  public-c = {
+    az   = "ap-northeast-2c",
+    cidr = "192.168.3.0/24"
+    tags = {
+      Name = "public-subnet-c"
+    }
   }
 }
